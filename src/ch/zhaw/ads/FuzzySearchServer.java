@@ -56,7 +56,24 @@ public class FuzzySearchServer implements CommandExecutor {
     public static int findIdx(String name) {
         counts.clear();
         int maxIdx = -1;
-        // TODO implement
+
+        List<String> searchTrigrams = trigramForName(name);
+        int maxCount = 0;
+
+        for (String trig : searchTrigrams) {
+            List<Integer> idxList = trigrams.get(trig);
+            if (idxList != null) {
+                for (Integer idx : idxList) {
+                    incCount(idx);
+                    int currentCount = counts.get(idx);
+                    if (currentCount > maxCount) {
+                        maxCount = currentCount;
+                        maxIdx = idx;
+                    }
+                }
+            }
+        }
+
         return maxIdx;
     }
 

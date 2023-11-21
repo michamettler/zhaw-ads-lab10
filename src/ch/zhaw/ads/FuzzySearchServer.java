@@ -1,10 +1,6 @@
 package ch.zhaw.ads;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FuzzySearchServer implements CommandExecutor {
     public static List<String> names = new ArrayList<>(); // List of all names
@@ -14,12 +10,15 @@ public class FuzzySearchServer implements CommandExecutor {
     // load all names into names List
     // each name only once (i.e. no doublettes allowed
     public static void loadNames(String nameString) {
-        // TODO implement
+        Arrays.stream(nameString.split("\n")).forEach(nameLine -> {
+            if (!names.contains(nameLine.split(";")[0])) names.add(nameLine.split(";")[0]);
+        });
     }
 
     // add a single trigram to 'trigrams' index
     public static void addToTrigrams(int nameIdx, String trig) {
-        // TODO implement
+        if (!trigrams.containsKey(trig)) trigrams.put(trig, new ArrayList<>());
+        trigrams.get(trig).add(nameIdx);
     }
 
     // works better for flipped and short names if " " added and lowercase
@@ -30,7 +29,11 @@ public class FuzzySearchServer implements CommandExecutor {
     // construct a list of trigrams for a name
     public static List<String> trigramForName(String name) {
         name = nomalize(name);
-        // TODO implement
+        var trigs = new ArrayList<String>();
+        for (int i = 0; i < name.length() - 2; i++) {
+            trigs.add(name.substring(i, i + 3));
+        }
+        return trigs;
     }
 
     public static void constructTrigramIndex(List<String> names) {
@@ -44,7 +47,7 @@ public class FuzzySearchServer implements CommandExecutor {
 
     private static void incCount(int cntIdx) {
         Integer c = counts.get(cntIdx);
-        c = (c == null)?  1 : c + 1;
+        c = (c == null) ? 1 : c + 1;
         counts.put(cntIdx, c);
     }
 
@@ -56,6 +59,7 @@ public class FuzzySearchServer implements CommandExecutor {
         // TODO implement
         return maxIdx;
     }
+
     // finde Namen gebe "" zurück wenn gefundener Name nicht grösser als verlangter score ist.
     public static String find(String searchName, int scoreRequired) {
         int found = findIdx(searchName);
@@ -71,7 +75,7 @@ public class FuzzySearchServer implements CommandExecutor {
         return (int) (100.0 * Math.min(counts.get(found), foundName.length()) / foundName.length());
     }
 
-    public String execute(String searchName)  {
+    public String execute(String searchName) {
         int found = findIdx(searchName);
         if (found >= 0) {
             int score = score(found);
@@ -82,7 +86,7 @@ public class FuzzySearchServer implements CommandExecutor {
         }
     }
 
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         FuzzySearchServer fs = new FuzzySearchServer();
         System.out.println(fs.execute("Kiptum Daniel"));
         System.out.println(fs.execute("Daniel Kiptum"));
